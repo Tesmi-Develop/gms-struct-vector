@@ -14,36 +14,30 @@ enum vector2_dir {
 #macro vector2_left new Vector2(-1, 0)
 #macro vector2_right new Vector2(1, 0)
 
+function Normilize(vector) {
+	if (vector.Magnitude == 0) {
+		return vector;
+	}
+	
+	if (vector.x == (x / vector.Magnitude) && vector.y == (y / vector.Magnitude)) {
+		return vector;
+	}
+	
+	return new Vector2(x / vector.Magnitude, y / vector.Magnitude)
+}
+
 /// @param {Real} x
 /// @param {Real} y
 function Vector2(x = 0, y = 0) constructor {
 	self.x = x;
 	self.y = y;
-
-	/// @return {Id.Instance<Struct.Vector2>}
-	static set_one = function() {
-		x = 1;
-		y = 1;
-		return self;
-	}
-
-	/// @return {Id.Instance<Struct.Vector2>}
-	static set_zero = function() {
-		x = 0;
-		y = 0;
-		return self;
-	}
+	self.Magnitude = sqrt(x*x + y*y)
+	self.Unit = Normilize(self)
+	self.Negative = new Vector2(-x, -y);
 
 	/// @return {Struct.Vector2}
 	static get_negative = function() {
 	    return new Vector2(-x, -y);
-	}
-
-	/// @return {Id.Instance<Struct.Vector2>}
-	static set_negative = function() {
-		x = -x;
-		y = -y;
-	    return self;
 	}
 	
 	/// @param {Real} x
