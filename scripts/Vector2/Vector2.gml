@@ -14,7 +14,7 @@ enum vector2_dir {
 #macro vector2_left new Vector2(-1, 0)
 #macro vector2_right new Vector2(1, 0)
 
-function Normilize(vector) {
+function normilize(vector) {
 	if (vector.Magnitude == 0) {
 		return vector;
 	}
@@ -23,7 +23,16 @@ function Normilize(vector) {
 		return vector;
 	}
 	
-	return new Vector2(x / vector.Magnitude, y / vector.Magnitude)
+	return new Vector2(x / vector.Magnitude, y / vector.Magnitude);
+}
+
+/// @param {Real} angle
+/// @param {Bool} radians
+/// @return {Id.Instance<Struct.Vector2>}
+function vector2_from_angle(angle, radians = false) {
+	var _x = radians ? arccos(angle) : darccos(angle);
+	var _y = radians ? arcsin(angle) : darcsin(angle);
+	return new Vector2(_x, _y);
 }
 
 /// @param {Real} x
@@ -31,9 +40,13 @@ function Normilize(vector) {
 function Vector2(x = 0, y = 0) constructor {
 	self.x = x;
 	self.y = y;
-	self.Magnitude = sqrt(x*x + y*y)
-	self.Unit = Normilize(self)
-	self.Negative = new Vector2(-x, -y);
+	self.Magnitude = sqrt(x*x + y*y);
+	self.Unit = Normilize(self);
+
+	/// @param {Struct.Vector2} vector
+	static equals = function(vector) {
+		return x == vector.x && y == vector.y;
+	}
 
 	/// @return {Struct.Vector2}
 	static get_negative = function() {
@@ -43,92 +56,59 @@ function Vector2(x = 0, y = 0) constructor {
 	/// @param {Real} x
 	/// @param {Real} y
 	/// @return {Id.Instance<Struct.Vector2>}
-	static sset = function(x, y) {
-		self.x = x;
-		self.y = y;
-		return self;
-	}
-	
-	/// @param {Struct.Vector2} vector
-	/// @return {Id.Instance<Struct.Vector2>}
-	static set = function(vector) {
-		x = vector.x;
-		y = vector.y;
-		return self;
-	}
-	
-	/// @param {Real} x
-	/// @param {Real} y
-	/// @return {Id.Instance<Struct.Vector2>}
 	static sadd = function(x, y) {
-		self.x += x;
-		self.y += y;
-		return self;
+		return new Vector2(self.x + x, self.y + y);
 	}
 	
 	/// @param {Struct.Vector2} vector
 	/// @return {Id.Instance<Struct.Vector2>}
 	static add = function(vector) {
-		x += vector.x;
-		y += vector.y;
-		return self;
+		return new Vector2(x + vector.x, y + vector.y);
 	}
 	
 	/// @param {Real} x
 	/// @param {Real} y
 	/// @return {Id.Instance<Struct.Vector2>}
 	static ssub = function(x, y) {
-		self.x -= x;
-		self.y -= y;
-		return self;
+		return sadd(-x, -y);
 	}
 
 	/// @param {Struct.Vector2} vector
 	/// @return {Id.Instance<Struct.Vector2>}
 	static sub = function(vector) {
-		x -= vector.x;
-		y -= vector.y;
-		return self;
+		return add(vector.get_negative());
 	}
 
 	/// @param {Real} x
 	/// @param {Real} y
 	/// @return {Id.Instance<Struct.Vector2>}
 	static smulti = function(x, y) {
-		self.x *= x;
-		self.y *= y;
-		return self;
+		return new Vector2(self.x * x, self.y * y);
 	}
 
 	/// @param {Struct.Vector2} vector
 	/// @return {Id.Instance<Struct.Vector2>}
 	static multi = function(vector) {
-		x *= vector.x;
-		y *= vector.y;
-		return self;
+		return new Vector2(x * vector.x, y * vector.y);
 	}
 
 	/// @param {Real} x
 	/// @param {Real} y
 	/// @return {Id.Instance<Struct.Vector2>}
 	static sdivis = function(x, y) {
-		self.x /= x;
-		self.y /= y;
-		return self;
+		return new Vector2(self.x / x, self.y / y);
 	}
 	
 	/// @param {Struct.Vector2} vector
 	/// @return {Id.Instance<Struct.Vector2>}
 	static divis = function(vector) {
-		x /= vector.x;
-		y /= vector.y;
-		return self;
+		return new Vector2(x / vector.x, y / vector.y);
 	}
 
 	/// @param {Struct.Vector2} vector
 	/// @return {Real}
 	static distance_to = function(vector) {
-		return sqrt((x - vector.x) * (x - vector.x) + (y - vector.y) * (y - vector.y));
+		return self.Magnitude - vector.Magnitude;
 	}
 	
 	/// @param {Struct.Vector2} vector
@@ -143,15 +123,6 @@ function Vector2(x = 0, y = 0) constructor {
 		return x * vector.x - y * vector.y;
 	}
 	
-	/// @param {Real} angle
-	/// @param {Bool} radians
-	/// @return {Id.Instance<Struct.Vector2>}
-	static set_angle = function(angle, radians = false) {
-		x = radians ? arccos(angle) : darccos(angle);
-		y = radians ? arcsin(angle) : darcsin(angle);
-		return self;
-	}
-	
 	/// @param {Bool} radians
 	/// @return {Real}
 	static get_angle = function(radians = false) {
@@ -159,20 +130,13 @@ function Vector2(x = 0, y = 0) constructor {
 	}
 	
 	/// @return {Id.Instance<Struct.Vector2>}
-	static set_sign = function() {
-		set(get_sign());
-		return self;
+	static get_sign = function() {
+		return new Vector2(sign(x), sign(y));
 	}
 	
 	/// @return {Struct.Vector2}
 	static get_abs = function() {
 		return new Vector2(abs(x), abs(y));
-	}
-	
-	/// @return {Id.Instance<Struct.Vector2>}
-	static set_abs = function() {
-		set(get_abs());
-		return self;
 	}
 	
 	/// @param {Real} n
@@ -181,24 +145,10 @@ function Vector2(x = 0, y = 0) constructor {
 		return new Vector2(power(x, n), power(y, n));
 	}
 	
-	/// @param {Real} n
-	/// @return {Id.Instance<Struct.Vector2>}
-	static set_spower = function(n) {
-		set(get_spower(n));
-		return self;
-	}
-	
 	/// @param {Struct.Vector2} n
 	/// @return {Struct.Vector2}
 	static get_power = function(n) {
 		return new Vector2(power(x, n.x), power(y, n.y));
-	}
-	
-	/// @param {Struct.Vector2} n
-	/// @return {Id.Instance<Struct.Vector2>}
-	static set_power = function(n) {
-		set(get_power(n));
-		return self;
 	}
 		
 	/// @return {Struct.Vector2}
@@ -206,37 +156,14 @@ function Vector2(x = 0, y = 0) constructor {
 		return new Vector2(round(x), round(y));
 	}
 	
-	/// @return {Id.Instance<Struct.Vector2>}
-	static set_round = function() {
-		set(get_round())
-		return self;
-	}
-	
 	/// @return {Struct.Vector2}
 	static get_floor = function() {
 		return new Vector2(floor(x), floor(y));
 	}
 	
-	/// @return {Id.Instance<Struct.Vector2>}
-	static set_floor = function() {
-		set(get_floor());
-		return self;
-	}
-	
 	/// @return {Struct.Vector2}
 	static get_ceil = function() {
 		return new Vector2(ceil(x), ceil(y));
-	}
-	
-	/// @return {Id.Instance<Struct.Vector2>}
-	static set_ceil = function() {
-		set(get_ceil());
-		return self;
-	}
-	
-	/// @return {Real}
-	static length = function() {
-		return sqr(x * x + y * y);
 	}
 	
 	/// @param {Real} min
@@ -245,24 +172,10 @@ function Vector2(x = 0, y = 0) constructor {
 		return new Vector2(min(x, _min), min(y, _min));
 	}
 	
-	/// @param {Real} min
-	/// @return {Id.Instance<Struct.Vector2>}
-	static set_smin = function(_min) {
-		set(get_smin(_min));
-		return self;
-	}
-	
 	/// @param {Struct.Vector2} min
 	/// @return {Struct.Vector2}
 	static get_min = function(_min) {
 		return new Vector2(min(x, _min.x), min(y, _min.y));
-	}
-	
-	/// @param {Struct.Vector2} min
-	/// @return {Id.Instance<Struct.Vector2>}
-	static set_min = function(_min) {
-		set(get_min(_min));
-		return self;
 	}
 	
 	/// @param {Real} max
@@ -270,25 +183,11 @@ function Vector2(x = 0, y = 0) constructor {
 	static get_smax = function(_max) {
 		return new Vector2(max(x, _max), max(y, _max));
 	}
-	
-	/// @param {Real} min
-	/// @return {Id.Instance<Struct.Vector2>}
-	static set_smax = function(_max) {
-		set(get_smax(_max));
-		return self;
-	}
 
 	/// @param {Struct.Vector2} max
 	/// @return {Struct.Vector2}
 	static get_max = function(_max) {
 		return new Vector2(max(x, _max.x), max(y, _max.y));
-	}
-	
-	/// @param {Struct.Vector2} max
-	/// @return {Id.Instance<Struct.Vector2>}
-	static set_max = function(_max) {
-		set(get_max(_max));
-		return self;
 	}
 	
 	/// @param {Real} min
@@ -298,35 +197,11 @@ function Vector2(x = 0, y = 0) constructor {
 		return new Vector2(clamp(x, _min, _max),  clamp(y, _min, _max));
 	}
 	
-	/// @param {Real} min
-	/// @param {Real} max
-	/// @return {Id.Instance<Struct.Vector2>}
-	static set_sclamp = function(_min, _max) {
-		set(get_sclamp(_min, _max));
-		return self;
-	}
-	
 	/// @param {Struct.Vector2} min
 	/// @param {Struct.Vector2} max
 	/// @return {Struct.Vector2}
 	static get_clamp = function(_min, _max) {
 		return new Vector2(clamp(x, _min.x, _max.x),  clamp(y, _min.y, _max.y));
-	}
-	
-	/// @param {Struct.Vector2} min
-	/// @param {Struct.Vector2} max
-	/// @return {Id.Instance<Struct.Vector2>}
-	static set_clamp = function(_min, _max) {
-		set(get_clamp(_min, _max));
-		return self;
-	}
-	
-	/// @param {Struct.Vector2} target
-	/// @param {Real} amount
-	/// @return {Id.Instance<Struct.Vector2>}
-	static set_slerp = function(target, amount) {
-		set(get_slerp(target, amount));
-		return self;
 	}
 	
 	/// @param {Struct.Vector2} target
@@ -347,23 +222,9 @@ function Vector2(x = 0, y = 0) constructor {
 		return new Vector2(lerp_x, lerp_y);
 	}
 	
-	/// @param {Struct.Vector2} target
-	/// @param {Struct.Vector2} amount
-	/// @return {Id.Instance<Struct.Vector2>}
-	static set_lerp = function(target, amount) {
-		set(get_lerp(target, amount));
-		return self;
-	}
-	
 	/// @return {Struct.Vector2}
 	static get_mirror = function() {
 		return new Vector2(y, x);
-	}
-	
-	/// @return {Id.Instance<Struct.Vector2>}
-	static set_mirror = function() {
-		set(get_mirror());
-		return self;
 	}
 
 	/// @retunr {Struct.Vector2}
@@ -438,7 +299,7 @@ function Vector2(x = 0, y = 0) constructor {
 	/// @param {Real} value
 	/// @return {Struct.Vector2}
 	static dir_set = function(dir, value) {
-		return __dir_base(dir, value, self);
+		return __dir_base(dir, value, copy());
 	}
 	
 	/// @param {Real} dir
